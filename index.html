@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RAVIYA ULTIMATE DOWNLOADER</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. SETTINGS & COLORS --- */
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --purple: #ff0099;
+            --bg-dark: #050507;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.15);
+            --glow: 0 0 25px rgba(0, 242, 254, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* --- 2. ADVANCED GALAXY BACKGROUND ART --- */
+        .bg-art {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+        }
+        
+        /* Stars Generation */
+        .stars {
+            width: 2px; height: 2px;
+            background: transparent;
+            box-shadow: 10px 10px #FFF, 20px 50px #FFF, 100px 80px #FFF, 250px 10px #FFF, 400px 400px #FFF, 500px 10px #FFF, 600px 50px #FFF;
+            animation: animStar 50s linear infinite;
+        }
+        .stars:after {
+            content: " "; position: absolute; top: 2000px; width: 2px; height: 2px;
+            background: transparent;
+            box-shadow: 10px 10px #FFF, 20px 50px #FFF, 100px 80px #FFF, 250px 10px #FFF, 400px 400px #FFF, 500px 10px #FFF, 600px 50px #FFF;
+        }
+        
+        @keyframes animStar { from { transform: translateY(0px); } to { transform: translateY(-2000px); } }
+
+        /* Floating Nebulas */
+        .nebula {
+            position: absolute; width: 600px; height: 600px; border-radius: 50%;
+            filter: blur(80px); opacity: 0.4;
+            animation: moveNebula 10s infinite alternate;
+        }
+        .n1 { top: -100px; left: -100px; background: var(--purple); animation-delay: 0s; }
+        .n2 { bottom: -100px; right: -100px; background: var(--primary); animation-delay: 5s; }
+
+        @keyframes moveNebula { 0% { transform: scale(1); } 100% { transform: scale(1.2); } }
+
+        /* --- 3. LANGUAGE SWITCHER --- */
+        .top-bar {
+            position: absolute; top: 20px; right: 20px; z-index: 1000;
+            display: flex; gap: 10px;
+            background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 30px;
+            backdrop-filter: blur(5px); border: 1px solid var(--border);
+        }
+        .lang-btn {
+            background: transparent; border: none;
+            color: #aaa; padding: 5px 10px; border-radius: 20px;
+            cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        .lang-btn.active, .lang-btn:hover { 
+            background: var(--primary); color: #000; font-weight: bold; box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* --- 4. PAGE TRANSITIONS --- */
+        .screen {
+            width: 100%; min-height: 100vh;
+            display: none; 
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; text-align: center;
+            opacity: 0; animation: fadeUp 0.6s forwards;
+        }
+        .screen.active { display: flex; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 5. LANDING PAGE --- */
+        #landing-screen { perspective: 1000px; }
+        
+        .hero-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 50px 30px; border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 400px; width: 100%;
+            transform-style: preserve-3d; transition: transform 0.2s;
+        }
+        .hero-icon { font-size: 5rem; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 15px var(--primary)); }
+        .hero-title { font-family: 'Orbitron'; font-size: 2rem; margin-bottom: 10px; background: linear-gradient(to right, #fff, var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-desc { color: #bbb; margin-bottom: 30px; font-size: 0.9rem; }
+        
+        .start-btn {
+            padding: 15px 50px; background: transparent; color: #fff;
+            border: 2px solid var(--primary); border-radius: 50px; font-family: 'Orbitron'; font-weight: bold;
+            cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .start-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 30px var(--primary); }
+
+        /* --- 6. DASHBOARD (Fixed Layout) --- */
+        .dashboard-container {
+            width: 100%; max-width: 1000px;
+            padding-top: 100px; /* Spacing for Top Bar overlap fix */
+            padding-bottom: 40px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron'; font-size: 2rem; margin-bottom: 40px;
+            text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .dashboard-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px; padding: 0 20px;
+        }
+
+        .menu-card {
+            background: rgba(30, 30, 35, 0.6); border: 1px solid var(--border);
+            padding: 40px 20px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .menu-card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.1); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .menu-card i { font-size: 3.5rem; margin-bottom: 15px; display: block; }
+        .menu-card h3 { font-family: 'Orbitron'; font-size: 1.2rem; margin-bottom: 5px; }
+
+        .fb-color { color: #1877f2; text-shadow: 0 0 15px rgba(24,119,242,0.5); }
+        .yt-color { color: #ff0000; text-shadow: 0 0 15px rgba(255,0,0,0.5); }
+        .mp3-color { color: #ff9900; text-shadow: 0 0 15px rgba(255,153,0,0.5); }
+
+        /* --- 7. TOOL PAGES --- */
+        .tool-box {
+            background: rgba(15, 15, 20, 0.85); backdrop-filter: blur(20px);
+            padding: 40px 30px; border-radius: 30px; border: 1px solid var(--border);
+            width: 90%; max-width: 600px; position: relative;
+            margin-top: 60px; /* Avoid overlap */
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+
+        .input-field {
+            width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+            color: #fff; border-radius: 15px; margin-bottom: 20px; text-align: center; font-size: 1rem; outline: none; transition: 0.3s;
+        }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,242,254,0.3); }
+
+        .back-icon {
+            position: absolute; top: 20px; left: 20px; color: #888; cursor: pointer;
+            font-size: 1.2rem; transition: 0.3s; background: rgba(255,255,255,0.1);
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+        .back-icon:hover { color: #fff; background: var(--primary); transform: rotate(-90deg); }
+
+        .thumb-area {
+            width: 100%; height: 220px; background: #000; border-radius: 15px;
+            margin-bottom: 20px; display: none; overflow: hidden; border: 1px solid #333;
+        }
+        .thumb-area img { width: 100%; height: 100%; object-fit: cover; }
+
+        .radio-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;}
+        .radio-group input { display: none; }
+        .radio-group label {
+            padding: 8px 20px; background: rgba(255,255,255,0.05); border-radius: 20px;
+            cursor: pointer; font-size: 0.9rem; transition: 0.3s; border: 1px solid var(--border);
+            font-family: 'Orbitron';
+        }
+        .radio-group input:checked + label { background: var(--primary); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--primary); }
+
+        .dl-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 50px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #000; font-weight: bold; font-family: 'Orbitron'; cursor: pointer;
+            transition: 0.3s; font-size: 1.1rem; text-transform: uppercase;
+        }
+        .dl-btn:hover { letter-spacing: 2px; box-shadow: 0 0 30px var(--primary); }
+
+        .result-msg { margin-top: 20px; min-height: 50px; }
+        .final-link {
+            display: inline-block; padding: 12px 30px; background: #00e676; color: #000;
+            text-decoration: none; border-radius: 50px; font-weight: bold; font-family: 'Orbitron';
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-art">
+        <div class="stars"></div>
+        <div class="nebula n1"></div>
+        <div class="nebula n2"></div>
+    </div>
+
+    <div class="top-bar">
+        <button class="lang-btn active" onclick="setLang('si')">SINHALA</button>
+        <button class="lang-btn" onclick="setLang('en')">ENGLISH</button>
+    </div>
+
+    <div id="landing-screen" class="screen active">
+        <div class="hero-card" id="heroCard">
+            <div class="hero-icon"><i class="fas fa-atom"></i></div>
+            <h1 class="hero-title" data-si="RAVIYA DOWNLOADER" data-en="RAVIYA DOWNLOADER">RAVIYA DOWNLOADER</h1>
+            <p class="hero-desc" data-si="වීඩියෝ ඩවුන්ලෝඩ් කිරීමේ පහසුම තැන." data-en="The Ultimate Video Downloader.">
+                වීඩියෝ ඩවුන්ලෝඩ් කිරීමේ පහසුම තැන.
+            </p>
+            <button class="start-btn" onclick="goTo('dashboard')" data-si="ඇතුල් වන්න" data-en="ENTER NOW">ඇතුල් වන්න</button>
+        </div>
+    </div>
+
+    <div id="dashboard" class="screen">
+        <div class="dashboard-container">
+            <h2 class="section-title" data-si="ඔබට අවශ්‍ය දේ තෝරන්න" data-en="SELECT YOUR TOOL">
+                ඔබට අවශ්‍ය දේ තෝරන්න
+            </h2>
+
+            <div class="dashboard-grid">
+                <div class="menu-card" onclick="goTo('fb-tool')">
+                    <i class="fab fa-facebook-f fb-color"></i>
+                    <h3>Facebook</h3>
+                    <p style="color:#aaa; font-size:0.8rem;" data-si="Video Download" data-en="Video Download">Video Download</p>
+                </div>
+                <div class="menu-card" onclick="goTo('yt-mp4-tool')">
+                    <i class="fab fa-youtube yt-color"></i>
+                    <h3>YouTube MP4</h3>
+                    <p style="color:#aaa; font-size:0.8rem;" data-si="HD Video" data-en="HD Video">HD Video</p>
+                </div>
+                <div class="menu-card" onclick="goTo('yt-mp3-tool')">
+                    <i class="fas fa-music mp3-color"></i>
+                    <h3>YouTube MP3</h3>
+                    <p style="color:#aaa; font-size:0.8rem;" data-si="Audio Only" data-en="Audio Only">Audio Only</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fb-tool" class="screen">
+        <div class="tool-box" style="border-top: 3px solid #1877f2;">
+            <div class="back-icon" onclick="goTo('dashboard')"><i class="fas fa-arrow-left"></i></div>
+            <i class="fab fa-facebook fb-color" style="font-size: 3.5rem; margin-bottom: 20px; display:block;"></i>
+            <h2 style="font-family:'Orbitron'; margin-bottom:20px;">Facebook</h2>
+            
+            <input type="text" id="fb-url" class="input-field" placeholder="Paste FB Link Here...">
+            <button class="dl-btn" onclick="fetchMedia('fb')" style="background: linear-gradient(90deg, #1877f2, #00c6ff); color:#fff;">Download</button>
+            <div class="result-msg" id="fb-result"></div>
+        </div>
+    </div>
+
+    <div id="yt-mp4-tool" class="screen">
+        <div class="tool-box" style="border-top: 3px solid #ff0000;">
+            <div class="back-icon" onclick="goTo('dashboard')"><i class="fas fa-arrow-left"></i></div>
+            <i class="fab fa-youtube yt-color" style="font-size: 3.5rem; margin-bottom: 20px; display:block;"></i>
+            <h2 style="font-family:'Orbitron'; margin-bottom:20px;">YouTube Video</h2>
+            
+            <input type="text" id="yt-mp4-url" class="input-field" placeholder="Paste Link Here..." oninput="showThumb(this.value, 'yt-mp4-thumb')">
+            
+            <div class="thumb-area" id="yt-mp4-thumb"><img src="" onerror="this.style.display='none'"></div>
+
+            <div class="radio-group">
+                <input type="radio" name="q-mp4" id="p360" value="360p" checked><label for="p360">360p</label>
+                <input type="radio" name="q-mp4" id="p720" value="720p"><label for="p720">720p</label>
+                <input type="radio" name="q-mp4" id="p1080" value="1080p"><label for="p1080">1080p</label>
+            </div>
+
+            <button class="dl-btn" onclick="fetchMedia('yt-mp4')" style="background: linear-gradient(90deg, #ff0000, #ff5e00); color:#fff;">Get Video</button>
+            <div class="result-msg" id="yt-mp4-result"></div>
+        </div>
+    </div>
+
+    <div id="yt-mp3-tool" class="screen">
+        <div class="tool-box" style="border-top: 3px solid #ff9900;">
+            <div class="back-icon" onclick="goTo('dashboard')"><i class="fas fa-arrow-left"></i></div>
+            <i class="fas fa-music mp3-color" style="font-size: 3.5rem; margin-bottom: 20px; display:block;"></i>
+            <h2 style="font-family:'Orbitron'; margin-bottom:20px;">YouTube Audio</h2>
+            
+            <input type="text" id="yt-mp3-url" class="input-field" placeholder="Paste Link Here..." oninput="showThumb(this.value, 'yt-mp3-thumb')">
+            
+            <div class="thumb-area" id="yt-mp3-thumb"><img src="" onerror="this.style.display='none'"></div>
+
+            <div class="radio-group">
+                <input type="radio" name="q-mp3" id="k128" value="128k" checked><label for="k128">128kbps</label>
+                <input type="radio" name="q-mp3" id="k320" value="320k"><label for="k320">320kbps</label>
+            </div>
+
+            <button class="dl-btn" onclick="fetchMedia('yt-mp3')" style="background: linear-gradient(90deg, #ff9900, #ffb300); color:#fff;">Get Audio</button>
+            <div class="result-msg" id="yt-mp3-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 3D Card Effect ---
+        const heroCard = document.getElementById('heroCard');
+        document.addEventListener('mousemove', (e) => {
+            if(document.getElementById('landing-screen').classList.contains('active')){
+                let x = (window.innerWidth / 2 - e.pageX) / 25;
+                let y = (window.innerHeight / 2 - e.pageY) / 25;
+                heroCard.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+            }
+        });
+
+        // --- Navigation ---
+        function goTo(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            setTimeout(() => document.getElementById(id).classList.add('active'), 100);
+            
+            // Cleanup
+            document.querySelectorAll('.result-msg').forEach(b => b.innerHTML = '');
+            document.querySelectorAll('input').forEach(i => i.value = '');
+            document.querySelectorAll('.thumb-area').forEach(t => t.style.display = 'none');
+        }
+
+        // --- Language ---
+        function setLang(l) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
+            document.querySelectorAll(`[data-${l}]`).forEach(el => el.innerText = el.getAttribute(`data-${l}`));
+        }
+
+        // --- Thumbnail ---
+        function showThumb(url, divId) {
+            const vidId = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{10,12})\b/);
+            const box = document.getElementById(divId);
+            if(vidId) {
+                box.style.display = "block";
+                box.querySelector('img').src = `https://img.youtube.com/vi/${vidId[1]}/hqdefault.jpg`;
+            } else { box.style.display = "none"; }
+        }
+
+        // --- API Logic ---
+        const apiKey = "movanest-keySMAFE9R6ON";
+
+        async function fetchMedia(type) {
+            let url, resBox, apiUrl;
+            
+            if(type === 'fb') {
+                url = document.getElementById('fb-url').value;
+                resBox = document.getElementById('fb-result');
+                apiUrl = `https://www.movanest.xyz/v2/fbdown?url=${encodeURIComponent(url)}`;
+            } else {
+                let qName = type === 'yt-mp4' ? 'q-mp4' : 'q-mp3';
+                let fmt = type === 'yt-mp4' ? 'mp4' : 'mp3';
+                let qual = document.querySelector(`input[name="${qName}"]:checked`).value;
+                url = document.getElementById(`${type}-url`).value;
+                resBox = document.getElementById(`${type}-result`);
+                apiUrl = `https://www.movanest.xyz/v2/ytdl-2?url=${encodeURIComponent(url)}&format=${fmt}&quality=${qual}&your_api_key=${apiKey}`;
+            }
+
+            if(!url) { resBox.innerHTML = `<p style="color:#ff4444; margin-top:10px;">Link Required!</p>`; return; }
+
+            resBox.innerHTML = `<p style="color:cyan; margin-top:10px;"><i class="fas fa-spinner fa-spin"></i> Processing...</p>`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                let link = data.url || data.data?.url || data.hd || data.sd || (data.status === true ? data.data : null);
+
+                if(link) {
+                    resBox.innerHTML = `<a href="${link}" target="_blank" class="final-link">DOWNLOAD NOW <i class="fas fa-download"></i></a>`;
+                } else { throw new Error("No Link"); }
+            } catch (e) {
+                // Fallback Button
+                resBox.innerHTML = `
+                    <div style="margin-top:15px;">
+                        <p style="color:#ff9900; font-size:0.8rem; margin-bottom:5px;">Direct Link Failed. Try this:</p>
+                        <a href="${apiUrl}" target="_blank" class="final-link" style="background:#333; color:#fff; font-size:0.8rem;">
+                            Force Download <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>
